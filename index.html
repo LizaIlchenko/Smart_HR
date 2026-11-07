@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart_HR — Мультимодальный ИИ для объективного найма</title>
+    <meta name="description" content="Платформа анализирует речь, мимику и текст кандидата. Точность 86%. Соответствие 152-ФЗ.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        brand: { 50:'#ecfeff', 100:'#cffafe', 400:'#22d3ee', 500:'#06b6d4', 600:'#0891b2', 700:'#0e7490', 900:'#164e63' },
+                        accent: { 500:'#14b8a6', 600:'#0d9488' }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'marquee': 'marquee 30s linear infinite',
+                    },
+                    keyframes: {
+                        marquee: { '0%':{transform:'translateX(0)'}, '100%':{transform:'translateX(-50%)'} }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .gradient-text { 
+            background: linear-gradient(135deg, #0891b2 0%, #14b8a6 50%, #06b6d4 100%); 
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: gradientMove 5s ease infinite;
+        }
+        @keyframes gradientMove { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        
+        .hero-bg { 
+            background-color: #0a0e17;
+            background-image: 
+                radial-gradient(ellipse at 20% 0%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(20, 184, 166, 0.15) 0%, transparent 50%);
+        }
+        
+        .glass { background: rgba(10, 14, 23, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .glass-light { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.08); }
+        
+        .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-8px); border-color: rgba(6, 182, 212, 0.3); box-shadow: 0 25px 50px -12px rgba(6, 182, 212, 0.25); }
+        
+        .blob { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.3; pointer-events: none; }
+        .grid-bg { background-image: linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px); background-size: 60px 60px; }
+        
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        
+        .nav-link { position: relative; }
+        .nav-link::after { content:''; position: absolute; bottom:-4px; left:0; width:0; height:2px; background: linear-gradient(90deg, #0891b2, #14b8a6); transition: width 0.3s; }
+        .nav-link:hover::after { width: 100%; }
+        
+        .btn-primary { background: linear-gradient(135deg, #0891b2, #0d9488); transition: all 0.3s; position: relative; overflow: hidden; }
+        .btn-primary::before { content:''; position: absolute; top:0; left:-100%; width:100%; height:100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s; }
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -10px rgba(8, 145, 178, 0.5); }
+        
+        .btn-secondary { transition: all 0.3s; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+        details[open] summary .chevron { transform: rotate(180deg); }
+        .chevron { transition: transform 0.3s; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0e17; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+       
+        .platform-mockup {
+            background: #0f172a;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px -20px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .platform-header {
+            background: linear-gradient(90deg, #7ec8c8, #a8dede);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .platform-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            color: #1a3a3a;
+            font-size: 18px;
+        }
+        .platform-logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #06b6d4, #14b8a6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+        }
+        .platform-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #1a3a3a;
+            font-weight: 600;
+        }
+        .platform-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #5fa8a8;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .platform-body {
+            display: flex;
+            min-height: 480px;
+        }
+        .platform-sidebar {
+            width: 70px;
+            background: #e0f4f4;
+            border-right: 1px solid #b8d8d8;
+            padding: 16px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5a7a7a;
+            font-size: 18px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .sidebar-icon.active {
+            background: #7ec8c8;
+            color: white;
+        }
+        .platform-content {
+            flex: 1;
+            padding: 24px;
+            background: #e0f4f4;
+            overflow-y: auto;
+            max-height: 520px;
+        }
+        .screen { display: none; animation: fadeScreen 0.4s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeScreen {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .screen-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #b8d8d8;
+        }
+        .screen-title h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1a3a3a;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .screen-title .icon {
+            font-size: 28px;
+        }
+        .mock-card {
+            background: white;
+            border: 2px solid #5a7a7a;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .mock-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a3a3a;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #b8d8d8;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .mock-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1.5px solid #b8d8d8;
+            border-radius: 6px;
+            background: #f8fdfd;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #1a3a3a;
+            margin-bottom: 10px;
+        }
+        .mock-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mock-btn-primary {
+            background: #5fa8a8;
+            color: white;
+        }
+        .mock-btn-primary:hover { background: #4a8a8a; }
+        .mock-btn-secondary {
+            background: white;
+            color: #5a7a7a;
+            border: 1.5px solid #5a7a7a;
+        }
+        .mock-btn-secondary:hover { background: #e0f4f4; }
+        .mock-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .mock-table th {
+            background: #d4f0f0;
+            color: #1a3a3a;
+            padding: 8px;
+            text-align: left;
+            font-weight: 700;
+        }
+        .mock-table td {
+            padding: 8px;
+            border-bottom: 1px solid #b8d8d8;
+            color: #1f2937;
+        }
+        .mock-table tr:hover td {
+            background: #f0fafa;
+        }
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .status-done { background: #e8f8f5; color: #1e8449; }
+        .status-progress { background: #fff4e0; color: #d68910; }
+        .status-new { background: #eaf4fb; color: #2874a6; }
+        .score-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 11px;
+        }
+        .score-high { background: #e8f8f5; color: #1e8449; }
+        .score-mid { background: #fff4e0; color: #d68910; }
+        
+        .demo-nav {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .demo-nav-btn {
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        .demo-nav-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .demo-nav-btn.active {
+            background: linear-gradient(135deg, #0891b2, #0d9488);
+            color: white;
+            border-color: transparent;
+        }
+        .demo-step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .demo-step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        .demo-step-dot.active {
+            background: #06b6d4;
+            width: 24px;
+            border-radius: 4px;
+        }
+        .demo-step-label {
+            font-size: 11px;
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+            margin-left: auto;
+        }
+
+        /* Компетенции в отчёте */
+        .competency-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .competency-name {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1.5px dashed #b8d8d8;
+            border-radius: 6px;
+            background: #f8fdfd;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #1a3a3a;
+        }
+        .competency-value {
+            width: 60px;
+            padding: 8px;
+            border: 1.5px solid #5a7a7a;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 700;
+            background: white;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 140px;
+            padding-top: 10px;
+            border-bottom: 1px solid #b8d8d8;
+            margin-bottom: 8px;
+        }
+        .bar-group {
+            display: flex;
+            gap: 3px;
+            align-items: flex-end;
+            flex: 1;
+            justify-content: center;
+        }
+        .bar {
+            width: 12px;
+            border-radius: 2px 2px 0 0;
+        }
+        .bar-blue { background: #5b9bd5; }
+        .bar-orange { background: #ed7d31; }
+        .chart-labels {
+            display: flex;
+            justify-content: space-around;
+            font-size: 9px;
+            color: #5a7a7a;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .chart-labels span {
+            transform: rotate(-25deg);
+            transform-origin: left top;
+        }
+    </style>
+</head>
+<body class="bg-[#0a0e17] text-white antialiased overflow-x-hidden">
+
+<nav class="fixed top-0 w-full z-50 glass" id="navbar">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <a href="#hero" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand-500/30 group-hover:scale-110 transition-transform">
+                <i data-lucide="brain-circuit" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <span class="font-bold text-xl tracking-tight block leading-none">Smart_HR</span>
+                <span class="text-[10px] text-slate-400 font-medium tracking-wider uppercase">ООО «Нейрософт»</span>
+            </div>
+        </a>
+        <div class="hidden lg:flex items-center gap-10 text-sm font-medium text-slate-300">
+            <a href="#problem" class="nav-link hover:text-white transition">Проблема</a>
+            <a href="#demo" class="nav-link hover:text-white transition">Платформа</a>
+            <a href="#technology" class="nav-link hover:text-white transition">Технология</a>
+            <a href="#pricing" class="nav-link hover:text-white transition">Тарифы</a>
+            <a href="#faq" class="nav-link hover:text-white transition">FAQ</a>
+        </div>
+        <a href="#contact" class="btn-primary text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg shadow-brand-500/20 inline-flex items-center gap-2">
+            Получить доступ
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+    </div>
+</nav>
+
+<section id="hero" class="hero-bg pt-32 pb-20 relative overflow-hidden min-h-screen flex items-center">
+    <div class="absolute inset-0 grid-bg"></div>
+    <div class="blob bg-brand-600 w-[600px] h-[600px] -top-40 -left-40"></div>
+    <div class="blob bg-accent-600 w-[500px] h-[500px] bottom-0 -right-20"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 relative z-10 w-full">
+        <div class="max-w-5xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur mb-8 reveal">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                </span>
+                <span class="text-sm font-medium text-slate-300">Продукт готовится к выходу · <strong class="text-amber-400">Скоро запуск</strong></span>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 leading-[0.95] reveal" style="transition-delay: 100ms;">
+                Найм будущего<br>
+                <span class="gradient-text">уже здесь</span>
+            </h1>
+            
+            <p class="text-xl md:text-2xl text-slate-300 mb-10 leading-relaxed max-w-3xl reveal" style="transition-delay: 200ms;">
+                Мультимодальный ИИ анализирует речь, мимику и текст кандидата. 
+                Сократите время отбора на 70% и находите лучших сотрудников с точностью до 86%.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row items-start gap-4 mb-16 reveal" style="transition-delay: 300ms;">
+                <a href="#demo" class="btn-primary text-white px-8 py-4 rounded-full text-base font-semibold shadow-xl shadow-brand-500/30 inline-flex items-center gap-2 group">
+                    Посмотреть платформу
+                    <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                <a href="#contact" class="btn-secondary bg-white/5 text-white border border-white/10 px-8 py-4 rounded-full text-base font-semibold inline-flex items-center gap-2">
+                    Оставить заявку
+                </a>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-6 text-sm text-slate-400 reveal" style="transition-delay: 400ms;">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-green-500"></i>
+                    <span>152-ФЗ</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="server" class="w-4 h-4 text-brand-400"></i>
+                    <span>Серверы в РФ</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="languages" class="w-4 h-4 text-accent-400"></i>
+                    <span>Русский язык</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="award" class="w-4 h-4 text-purple-400"></i>
+                    <span>Грант ФСИ</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-16 border-y border-white/5 bg-slate-900/30">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div class="reveal">
+                <div class="text-4xl md:text-6xl font-black text-white mb-2">89</div>
+                <div class="text-sm font-medium text-slate-500 uppercase tracking-wide">Кандидатов протестировано</div>
+            </div>
+            <div class="reveal" style="transition-delay: 100ms;">
+                <div class="text-4xl md:text-6xl font-black gradient-text mb-2">86%</div>
+                <div class="text-sm font-medium text-slate-500 uppercase tracking-wide">Точность анализа</div>
+            </div>
+            <div class="reveal" style="transition-delay: 200ms;">
+                <div class="text-4xl md:text-6xl font-black text-white mb-2">42</div>
+                <div class="text-sm font-medium text-slate-500 uppercase tracking-wide">Профессии в базе</div>
+            </div>
+            <div class="reveal" style="transition-delay: 300ms;">
+                <div class="text-4xl md:text-6xl font-black text-white mb-2">3</div>
+                <div class="text-sm font-medium text-slate-500 uppercase tracking-wide">Модальности анализа</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="problem" class="py-24 bg-slate-900/30 relative">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16 max-w-3xl mx-auto reveal">
+            <span class="text-brand-400 font-bold text-sm uppercase tracking-wider mb-2 block">Проблема рынка</span>
+            <h2 class="text-4xl md:text-6xl font-black mb-6 tracking-tight">Почему традиционный найм <span class="gradient-text">сломан?</span></h2>
+            <p class="text-xl text-slate-400">80% HR-специалистов не могут объективно оценить soft skills. Вы теряете лучших кандидатов каждый день.</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="glass-light rounded-3xl p-8 card-hover group reveal">
+                <div class="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center text-red-400 mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="user-x" class="w-7 h-7"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Субъективность</h3>
+                <p class="text-slate-400 leading-relaxed">Решение зависит от настроения рекрутера. Когнитивные искажения влияют на 73% наймов.</p>
+            </div>
+            <div class="glass-light rounded-3xl p-8 card-hover group reveal" style="transition-delay: 100ms;">
+                <div class="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center text-red-400 mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="clock" class="w-7 h-7"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Долго и дорого</h3>
+                <p class="text-slate-400 leading-relaxed">40-60 минут на кандидата. При массовом найме — сотни часов работы команды.</p>
+            </div>
+            <div class="glass-light rounded-3xl p-8 card-hover group reveal" style="transition-delay: 200ms;">
+                <div class="w-14 h-14 bg-red-500/10 rounded-2xl flex items-center justify-center text-red-400 mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="eye-off" class="w-7 h-7"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Поверхностно</h3>
+                <p class="text-slate-400 leading-relaxed">Кандидаты умеют "продавать" себя. Микровыражения и интонацию подделать невозможно.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="demo" class="py-24 bg-[#0a0e17] relative overflow-hidden">
+    <div class="blob bg-brand-600 w-[600px] h-[600px] -top-40 -left-40 opacity-10"></div>
+    <div class="blob bg-accent-600 w-[500px] h-[500px] bottom-0 right-0 opacity-10"></div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="text-center mb-12 reveal">
+            <span class="text-brand-400 font-bold text-sm uppercase tracking-wider mb-2 block">Интерактивная демонстрация</span>
+            <h2 class="text-4xl md:text-6xl font-black mb-6 tracking-tight">Полный цикл <span class="gradient-text">работы платформы</span></h2>
+            <p class="text-xl text-slate-400 max-w-3xl mx-auto">Реальный интерфейс Smart_HR — от регистрации HR-специалиста до аналитического отчёта по кандидату. Переключайтесь между экранами, чтобы увидеть все этапы.</p>
+        </div>
+        
+        <div class="max-w-6xl mx-auto reveal">
+       
+            <div class="demo-nav justify-center mb-6">
+                <button class="demo-nav-btn active" onclick="showScreen(0)">
+                    <i data-lucide="log-in" class="w-3 h-3 inline mr-1"></i> Вход
+                </button>
+                <button class="demo-nav-btn" onclick="showScreen(1)">
+                    <i data-lucide="layout-dashboard" class="w-3 h-3 inline mr-1"></i> Дашборд
+                </button>
+                <button class="demo-nav-btn" onclick="showScreen(2)">
+                    <i data-lucide="users" class="w-3 h-3 inline mr-1"></i> Кандидаты
+                </button>
+                <button class="demo-nav-btn" onclick="showScreen(3)">
+                    <i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i> Назначение
+                </button>
+                <button class="demo-nav-btn" onclick="showScreen(4)">
+                    <i data-lucide="video" class="w-3 h-3 inline mr-1"></i> Интервью
+                </button>
+                <button class="demo-nav-btn" onclick="showScreen(5)">
+                    <i data-lucide="file-bar-chart" class="w-3 h-3 inline mr-1"></i> Отчёт
+                </button>
+            </div>
+
+            <div class="demo-step-indicator justify-center mb-4">
+                <div class="demo-step-dot active" data-step="0"></div>
+                <div class="demo-step-dot" data-step="1"></div>
+                <div class="demo-step-dot" data-step="2"></div>
+                <div class="demo-step-dot" data-step="3"></div>
+                <div class="demo-step-dot" data-step="4"></div>
+                <div class="demo-step-dot" data-step="5"></div>
+                <div class="demo-step-label" id="step-label">Шаг 1 из 6 · Вход в систему</div>
+            </div>
+            
+  
+            <div class="platform-mockup">
+                <div class="platform-header">
+                    <div class="platform-logo">
+                        <div class="platform-logo-icon">S</div>
+                        <span>Smart_HR</span>
+                    </div>
+                    <div class="platform-user">
+                        <span>Елизавета Ильченко</span>
+                        <div class="platform-avatar">Е</div>
+                    </div>
+                </div>
+                <div class="platform-body">
+                    <div class="platform-sidebar">
+                        <div class="sidebar-icon active" data-screen="0" onclick="showScreen(0)">📊</div>
+                        <div class="sidebar-icon" data-screen="1" onclick="showScreen(1)">👥</div>
+                        <div class="sidebar-icon" data-screen="2" onclick="showScreen(2)">📅</div>
+                        <div class="sidebar-icon" data-screen="3" onclick="showScreen(3)">🤖</div>
+                        <div class="sidebar-icon" data-screen="4" onclick="showScreen(4)">📈</div>
+                        <div class="sidebar-icon" data-screen="5" onclick="showScreen(5)">👤</div>
+                    </div>
+                    <div class="platform-content">
+                       
+                        <div class="screen active" data-screen="0">
+                            <div class="max-w-md mx-auto" style="margin-top: 40px;">
+                                <div class="mock-card">
+                                    <h3 style="color: #1a3a3a; margin-bottom: 6px; font-size: 20px; font-weight: 800;">Вход в Smart_HR</h3>
+                                    <p style="color: #5a7a7a; font-size: 12px; margin-bottom: 16px;">Мультимодальная платформа онлайн-собеседований с ИИ</p>
+                                    <div style="margin-bottom: 12px;">
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Email</label>
+                                        <div class="mock-input">hr@smarthr.ru</div>
+                                    </div>
+                                    <div style="margin-bottom: 12px;">
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Пароль</label>
+                                        <div class="mock-input">••••••••</div>
+                                    </div>
+                                    <div style="margin-bottom: 14px;">
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Роль</label>
+                                        <div class="mock-input" style="background: white;">HR-специалист ▾</div>
+                                    </div>
+                                    <button class="mock-btn mock-btn-primary" style="width: 100%;">Войти</button>
+                                    <div style="text-align: center; margin-top: 12px; font-size: 11px; color: #5a7a7a;">
+                                        Нет аккаунта? <span style="color: #5fa8a8; font-weight: 700;">Зарегистрироваться</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="screen" data-screen="1">
+                            <div class="screen-title">
+                                <span class="icon">📊</span>
+                                <h3>Панель управления HR</h3>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px;">
+                                <div class="mock-card" style="margin-bottom: 0;">
+                                    <div style="font-size: 11px; color: #5a7a7a; font-weight: 600;">Активные сессии</div>
+                                    <div style="font-size: 28px; font-weight: 800; color: #1a3a3a;">12</div>
+                                </div>
+                                <div class="mock-card" style="margin-bottom: 0;">
+                                    <div style="font-size: 11px; color: #5a7a7a; font-weight: 600;">Всего кандидатов</div>
+                                    <div style="font-size: 28px; font-weight: 800; color: #1a3a3a;">89</div>
+                                </div>
+                                <div class="mock-card" style="margin-bottom: 0;">
+                                    <div style="font-size: 11px; color: #5a7a7a; font-weight: 600;">Завершено</div>
+                                    <div style="font-size: 28px; font-weight: 800; color: #1e8449;">47</div>
+                                </div>
+                                <div class="mock-card" style="margin-bottom: 0;">
+                                    <div style="font-size: 11px; color: #5a7a7a; font-weight: 600;">Средний балл</div>
+                                    <div style="font-size: 28px; font-weight: 800; color: #1a3a3a;">78%</div>
+                                </div>
+                            </div>
+                            <div class="mock-card">
+                                <div class="mock-card-title">Последние кандидаты</div>
+                                <table class="mock-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ФИО</th>
+                                            <th>Должность</th>
+                                            <th>Дата</th>
+                                            <th>Статус</th>
+                                            <th>Балл</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Порываева Е.С.</strong></td>
+                                            <td>Технический руководитель</td>
+                                            <td>19.10.2026</td>
+                                            <td><span class="status-badge status-done">Завершено</span></td>
+                                            <td><span class="score-badge score-high">87%</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Дегтярев И.В.</strong></td>
+                                            <td>Frontend-разработчик</td>
+                                            <td>19.10.2026</td>
+                                            <td><span class="status-badge status-done">Завершено</span></td>
+                                            <td><span class="score-badge score-high">87%</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Киян А.М.</strong></td>
+                                            <td>Product Manager</td>
+                                            <td>18.10.2026</td>
+                                            <td><span class="status-badge status-done">Завершено</span></td>
+                                            <td><span class="score-badge score-mid">74%</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Стародубова К.Д.</strong></td>
+                                            <td>UX-дизайнер</td>
+                                            <td>18.10.2026</td>
+                                            <td><span class="status-badge status-progress">В процессе</span></td>
+                                            <td>—</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="screen" data-screen="2">
+                            <div class="screen-title">
+                                <span class="icon">👥</span>
+                                <h3>База кандидатов (89)</h3>
+                            </div>
+                            <div class="mock-card">
+                                <div class="mock-card-title">Добавить нового кандидата</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                                    <div>
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">ФИО *</label>
+                                        <div class="mock-input">Березовский Олег Романович</div>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Должность</label>
+                                        <div class="mock-input" style="background: white;">Data Scientist ▾</div>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Email</label>
+                                        <div class="mock-input">berezovskiy@mail.ru</div>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Телефон</label>
+                                        <div class="mock-input">+7 (900) 555-66-77</div>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Город</label>
+                                        <div class="mock-input">Екатеринбург</div>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Образование</label>
+                                        <div class="mock-input">Высшее математическое</div>
+                                    </div>
+                                </div>
+                                <button class="mock-btn mock-btn-primary" style="margin-top: 8px;">➕ Добавить кандидата</button>
+                            </div>
+                            <div class="mock-card">
+                                <div class="mock-card-title">Поиск и фильтрация</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                                    <div class="mock-input" style="margin-bottom: 0;">🔍 Введите фамилию...</div>
+                                    <div class="mock-input" style="background: white; margin-bottom: 0;">Все должности ▾</div>
+                                    <div class="mock-input" style="background: white; margin-bottom: 0;">Все статусы ▾</div>
+                                </div>
+                            </div>
+                            <div class="mock-card">
+                                <div class="mock-card-title">Список кандидатов (89)</div>
+                                <div style="max-height: 200px; overflow-y: auto;">
+                                    <table class="mock-table">
+                                        <thead>
+                                            <tr>
+                                                <th>№</th>
+                                                <th>ФИО</th>
+                                                <th>Должность</th>
+                                                <th>Город</th>
+                                                <th>Образование</th>
+                                                <th>Действие</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td><strong>Порываева Е.С.</strong></td>
+                                                <td>Технический руководитель</td>
+                                                <td>Комсомольск-на-Амуре</td>
+                                                <td>Высшее техническое</td>
+                                                <td><button class="mock-btn mock-btn-primary" style="padding: 4px 10px; font-size: 10px;">📄 Отчёт</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>2</td>
+                                                <td><strong>Дегтярев И.В.</strong></td>
+                                                <td>Frontend-разработчик</td>
+                                                <td>Москва</td>
+                                                <td>Высшее IT</td>
+                                                <td><button class="mock-btn mock-btn-primary" style="padding: 4px 10px; font-size: 10px;">📄 Отчёт</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>3</td>
+                                                <td><strong>Киян А.М.</strong></td>
+                                                <td>Product Manager</td>
+                                                <td>Санкт-Петербург</td>
+                                                <td>MBA</td>
+                                                <td><button class="mock-btn mock-btn-primary" style="padding: 4px 10px; font-size: 10px;">📄 Отчёт</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>4</td>
+                                                <td><strong>Стародубова К.Д.</strong></td>
+                                                <td>UX-дизайнер</td>
+                                                <td>Новосибирск</td>
+                                                <td>Высшее дизайнерское</td>
+                                                <td><button class="mock-btn mock-btn-primary" style="padding: 4px 10px; font-size: 10px;">📄 Отчёт</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td>5</td>
+                                                <td><strong>Березовский О.Р.</strong></td>
+                                                <td>Data Scientist</td>
+                                                <td>Екатеринбург</td>
+                                                <td>Высшее математическое</td>
+                                                <td><button class="mock-btn mock-btn-primary" style="padding: 4px 10px; font-size: 10px;">📄 Отчёт</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                 
+                        <div class="screen" data-screen="3">
+                            <div class="screen-title">
+                                <span class="icon">📅</span>
+                                <h3>Назначение собеседования</h3>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div class="mock-card">
+                                    <div class="mock-card-title">Выбор кандидата</div>
+                                    <div style="margin-bottom: 12px;">
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Кандидат</label>
+                                        <div class="mock-input" style="background: white;">Порываева Е.С. — Технический руководитель ▾</div>
+                                    </div>
+                                    <div style="margin-bottom: 12px;">
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Должность</label>
+                                        <div class="mock-input" style="background: white;">Технический руководитель ▾</div>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Тариф</label>
+                                        <div class="mock-input" style="background: white;">Полный (12 000 ₽/мес) ▾</div>
+                                    </div>
+                                </div>
+                                <div class="mock-card">
+                                    <div class="mock-card-title">Параметры собеседования</div>
+                                    <div style="margin-bottom: 12px;">
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Дата и время</label>
+                                        <div class="mock-input">20.11.2026, 14:00</div>
+                                    </div>
+                                    <div style="margin-bottom: 12px;">
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Комментарий HR</label>
+                                        <div class="mock-input" style="min-height: 60px;">Оценить лидерские качества и опыт управления командой</div>
+                                    </div>
+                                    <div>
+                                        <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Приглашение на email</label>
+                                        <div class="mock-input" style="background: white;">Да, сразу после назначения ▾</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px;">
+                                <button class="mock-btn mock-btn-secondary">Отмена</button>
+                                <button class="mock-btn mock-btn-primary">✓ Назначить собеседование</button>
+                            </div>
+                        </div>
+
+                        <div class="screen" data-screen="4">
+                            <div class="screen-title">
+                                <span class="icon">🤖</span>
+                                <h3>Интервью с ИИ-интервьюером</h3>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div>
+                              
+                                    <div class="mock-card" style="background: linear-gradient(135deg, #7ec8c8, #a8dede); border-color: #5a7a7a; text-align: center; padding: 24px;">
+                                        <div style="width: 140px; height: 140px; border-radius: 50%; background: white; border: 4px solid #5fa8a8; display: flex; align-items: center; justify-content: center; font-size: 80px; margin: 0 auto 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">🤖</div>
+                                        <div style="font-size: 16px; font-weight: 800; color: #1a3a3a; margin-bottom: 4px;">Алиса — ИИ-интервьюер</div>
+                                        <div style="font-size: 11px; color: #5a7a7a; margin-bottom: 16px;">Smart'HR Assistant v2.1</div>
+                                        <div style="background: white; border: 1.5px solid #5a7a7a; border-radius: 8px; padding: 12px; font-size: 12px; line-height: 1.5; color: #1a3a3a;">
+                                            Расскажите, пожалуйста, о себе и вашем опыте работы.
+                                        </div>
+                                    </div>
+                                    
+                                  
+                                    <div class="mock-card">
+                                        <div style="background: linear-gradient(135deg, #e0f4f4, #b8d8d8); border-radius: 8px; border: 1.5px solid #5a7a7a; height: 160px; display: flex; align-items: center; justify-content: center; font-size: 60px; color: #5a7a7a; margin-bottom: 12px; position: relative;">
+                                            👤
+                                            <div style="position: absolute; top: 8px; right: 8px; background: white; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 700;">Камера вкл.</div>
+                                        </div>
+                                        
+                                        <div style="background: #f8fdfd; border: 1.5px dashed #b8d8d8; border-radius: 6px; padding: 10px; font-size: 12px; line-height: 1.5; margin-bottom: 12px; min-height: 50px;">
+                                            Расскажите, пожалуйста, о себе и вашем опыте работы.
+                                        </div>
+                                        
+                                        <div style="margin-bottom: 10px;">
+                                            <label style="display: block; font-size: 11px; color: #5a7a7a; margin-bottom: 4px; font-weight: 600;">Ваш ответ (текст или голос)</label>
+                                            <div class="mock-input" style="min-height: 60px;">В последнем проекте я возглавлял команду из 5 человек...</div>
+                                        </div>
+                                        
+                                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                            <button class="mock-btn mock-btn-secondary" style="flex: 1; font-size: 11px; padding: 6px 12px;">📷 Камера</button>
+                                            <button class="mock-btn mock-btn-secondary" style="flex: 1; font-size: 11px; padding: 6px 12px;">🎙 Микрофон</button>
+                                            <button class="mock-btn mock-btn-primary" style="flex: 2; font-size: 11px; padding: 6px 12px;">▶ Следующий вопрос</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            
+                                <div style="display: flex; flex-direction: column; gap: 16px;">
+                                    <div class="mock-card" style="margin-bottom: 0; text-align: center; flex: 1;">
+                                        <div style="font-size: 10px; color: #5a7a7a; margin-bottom: 4px;">🎙 Голос (Conformer)</div>
+                                        <div style="font-size: 22px; font-weight: 800; color: #1a3a3a; margin-bottom: 6px;">85%</div>
+                                        <div style="height: 6px; background: #e0f4f4; border-radius: 3px; overflow: hidden;">
+                                            <div style="height: 100%; width: 85%; background: linear-gradient(90deg, #5fa8a8, #7ec8c8); border-radius: 3px;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mock-card" style="margin-bottom: 0; text-align: center; flex: 1;">
+                                        <div style="font-size: 10px; color: #5a7a7a; margin-bottom: 4px;">📷 Мимика (Xception)</div>
+                                        <div style="font-size: 22px; font-weight: 800; color: #1a3a3a; margin-bottom: 6px;">82%</div>
+                                        <div style="height: 6px; background: #e0f4f4; border-radius: 3px; overflow: hidden;">
+                                            <div style="height: 100%; width: 82%; background: linear-gradient(90deg, #5fa8a8, #7ec8c8); border-radius: 3px;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mock-card" style="margin-bottom: 0; text-align: center; flex: 1;">
+                                        <div style="font-size: 10px; color: #5a7a7a; margin-bottom: 4px;">💬 Текст (DistilBERT)</div>
+                                        <div style="font-size: 22px; font-weight: 800; color: #1a3a3a; margin-bottom: 6px;">88%</div>
+                                        <div style="height: 6px; background: #e0f4f4; border-radius: 3px; overflow: hidden;">
+                                            <div style="height: 100%; width: 88%; background: linear-gradient(90deg, #5fa8a8, #7ec8c8); border-radius: 3px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="screen" data-screen="5">
+                            <div class="screen-title">
+                                <span class="icon">📊</span>
+                                <h3>Отчёт кандидата по компетенциям</h3>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div>
+                                    <div class="mock-card">
+                                        <div class="mock-card-title">Требуемые компетенции:</div>
+                                        <div class="competency-row"><div class="competency-name">Стратегия</div><div class="competency-value">87%</div></div>
+                                        <div class="competency-row"><div class="competency-name">Планирование</div><div class="competency-value">75%</div></div>
+                                        <div class="competency-row"><div class="competency-name">Организованность</div><div class="competency-value">79%</div></div>
+                                        <div class="competency-row"><div class="competency-name">Коммуникация</div><div class="competency-value">91%</div></div>
+                                        <div class="competency-row"><div class="competency-name">Влияние</div><div class="competency-value">71%</div></div>
+                                        <div class="competency-row"><div class="competency-name">Лидерство</div><div class="competency-value">93%</div></div>
+                                        <div class="competency-row"><div class="competency-name">Устойчивость</div><div class="competency-value">84%</div></div>
+                                        <div class="competency-row"><div class="competency-name">Мотивированность</div><div class="competency-value">82%</div></div>
+                                    </div>
+                                    <div class="mock-card">
+                                        <div class="mock-card-title">Должность:</div>
+                                        <div style="padding: 8px 12px; border: 1.5px solid #5a7a7a; border-radius: 6px; background: #f8fdfd; font-size: 13px; font-family: 'JetBrains Mono', monospace;">Технический руководитель</div>
+                                    </div>
+                                    <div class="mock-card">
+                                        <div class="mock-card-title">Вердикт:</div>
+                                        <div style="padding: 12px; border: 2px solid #5a7a7a; border-radius: 8px; background: #f8fdfd; font-size: 12px; line-height: 1.5; font-family: 'JetBrains Mono', monospace;">
+                                            Компетенции проявлены на уровне выше среднего, гарантирующее высокоэффективное поведение в сложных деловых ситуациях.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="mock-card">
+                                        <div style="display: flex; gap: 12px; align-items: flex-start;">
+                                            <div style="width: 100px; height: 120px; border-radius: 8px; background: linear-gradient(135deg, #7ec8c8, #a8dede); display: flex; align-items: center; justify-content: center; font-size: 50px; color: white; flex-shrink: 0; border: 2px solid #5a7a7a;">👤</div>
+                                            <div style="flex: 1; font-size: 12px; font-family: 'JetBrains Mono', monospace;">
+                                                <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                                                    <span style="font-weight: 700; color: #5a7a7a; min-width: 90px;">ФИО:</span>
+                                                    <span style="border-bottom: 1px solid #b8d8d8; flex: 1;">Порываева Елизавета Сергеевна</span>
+                                                </div>
+                                                <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                                                    <span style="font-weight: 700; color: #5a7a7a; min-width: 90px;">Номер:</span>
+                                                    <span style="border-bottom: 1px solid #b8d8d8; flex: 1;">+7(914)-426-66-70</span>
+                                                </div>
+                                                <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                                                    <span style="font-weight: 700; color: #5a7a7a; min-width: 90px;">Почта:</span>
+                                                    <span style="border-bottom: 1px solid #b8d8d8; flex: 1;">liza-ilchenko.12@mail.ru</span>
+                                                </div>
+                                                <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                                                    <span style="font-weight: 700; color: #5a7a7a; min-width: 90px;">Город:</span>
+                                                    <span style="border-bottom: 1px solid #b8d8d8; flex: 1;">Комсомольск-на-Амуре</span>
+                                                </div>
+                                                <div style="display: flex; gap: 6px;">
+                                                    <span style="font-weight: 700; color: #5a7a7a; min-width: 90px;">Образование:</span>
+                                                    <span style="border-bottom: 1px solid #b8d8d8; flex: 1;">Высшее техническое</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mock-card" style="height: 220px;">
+                                        <div class="chart-bars">
+                                            <div class="bar-group"><div class="bar bar-blue" style="height: 174px;"></div><div class="bar bar-orange" style="height: 170px;"></div></div>
+                                            <div class="bar-group"><div class="bar bar-blue" style="height: 150px;"></div><div class="bar bar-orange" style="height: 160px;"></div></div>
+                                            <div class="bar-group"><div class="bar bar-blue" style="height: 158px;"></div><div class="bar bar-orange" style="height: 160px;"></div></div>
+                                            <div class="bar-group"><div class="bar bar-blue" style="height: 182px;"></div><div class="bar bar-orange" style="height: 180px;"></div></div>
+                                            <div class="bar-group"><div class="bar bar-blue" style="height: 142px;"></div><div class="bar bar-orange" style="height: 160px;"></div></div>
+                                            <div class="bar-group"><div class="bar bar-blue" style="height: 186px;"></div><div class="bar bar-orange" style="height: 180px;"></div></div>
+                                            <div class="bar-group"><div class="bar bar-blue" style="height: 168px;"></div><div class="bar bar-orange" style="height: 160px;"></div></div>
+                                            <div class="bar-group"><div class="bar bar-blue" style="height: 164px;"></div><div class="bar bar-orange" style="height: 160px;"></div></div>
+                                        </div>
+                                        <div class="chart-labels">
+                                            <span>Стратегия</span><span>Планирование</span><span>Организ.</span>
+                                            <span>Коммуник.</span><span>Влияние</span><span>Лидерство</span>
+                                            <span>Устойч.</span><span>Мотивир.</span>
+                                        </div>
+                                        <div style="display: flex; justify-content: center; gap: 16px; margin-top: 10px; font-size: 10px;">
+                                            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 12px; height: 12px; background: #5b9bd5; border-radius: 2px;"></div>Проявленный</div>
+                                            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 12px; height: 12px; background: #ed7d31; border-radius: 2px;"></div>Требуемый</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+         
+            <div class="mt-8 grid md:grid-cols-3 gap-4">
+                <div class="glass-light rounded-2xl p-5 reveal">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 bg-brand-500/20 rounded-lg flex items-center justify-center text-brand-400 font-bold">1</div>
+                        <h4 class="font-bold text-white">Регистрация и вход</h4>
+                    </div>
+                    <p class="text-sm text-slate-400">HR-специалист авторизуется в системе, выбирает роль и получает доступ к дашборду с метриками.</p>
+                </div>
+                <div class="glass-light rounded-2xl p-5 reveal" style="transition-delay: 100ms;">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 bg-brand-500/20 rounded-lg flex items-center justify-center text-brand-400 font-bold">2</div>
+                        <h4 class="font-bold text-white">Управление кандидатами</h4>
+                    </div>
+                    <p class="text-sm text-slate-400">Добавление кандидатов, фильтрация по 42 профессиям, поиск и назначение собеседований.</p>
+                </div>
+                <div class="glass-light rounded-2xl p-5 reveal" style="transition-delay: 200ms;">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 bg-brand-500/20 rounded-lg flex items-center justify-center text-brand-400 font-bold">3</div>
+                        <h4 class="font-bold text-white">ИИ-интервью и отчёт</h4>
+                    </div>
+                    <p class="text-sm text-slate-400">Автоматический анализ трёх модальностей и формирование детального отчёта с вердиктом ИИ.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section id="technology" class="py-24 bg-slate-900/30 relative overflow-hidden">
+    <div class="blob bg-brand-600 w-[600px] h-[600px] -top-40 -left-40 opacity-10"></div>
+    <div class="blob bg-accent-600 w-[500px] h-[500px] bottom-0 right-0 opacity-10"></div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="text-center mb-16 max-w-3xl mx-auto reveal">
+            <span class="text-brand-400 font-bold text-sm uppercase tracking-wider mb-2 block">Архитектура</span>
+            <h2 class="text-4xl md:text-6xl font-black mb-6 tracking-tight">Три канала анализа. <br><span class="gradient-text">Одна точная оценка.</span></h2>
+            <p class="text-xl text-slate-400">Мультимодальная архитектура объединяет данные из разных источников, компенсируя погрешности каждого метода.</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-light rounded-3xl p-8 card-hover reveal">
+                <div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-brand-500/30">
+                    <i data-lucide="mic" class="w-7 h-7"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Анализ речи</h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">Модель Conformer распознаёт скрытый стресс, неуверенность или энтузиазм по темпу, паузам и тону голоса.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-brand-500/20 text-brand-300 rounded-lg text-xs font-mono font-bold">F1: 86.0%</span>
+                    <span class="px-3 py-1 bg-white/5 text-slate-400 rounded-lg text-xs font-mono">Dawid-Skene</span>
+                </div>
+            </div>
+            
+            <div class="glass-light rounded-3xl p-8 card-hover reveal" style="transition-delay: 100ms;">
+                <div class="w-14 h-14 bg-gradient-to-br from-accent-500 to-accent-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-accent-500/30">
+                    <i data-lucide="scan-face" class="w-7 h-7"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Компьютерное зрение</h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">MTCNN + Xception отслеживают 64 ключевые точки лица. Система не обманется дежурной улыбкой.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-accent-500/20 text-accent-300 rounded-lg text-xs font-mono font-bold">F1: 82.0%</span>
+                    <span class="px-3 py-1 bg-white/5 text-slate-400 rounded-lg text-xs font-mono">64 landmark points</span>
+                </div>
+            </div>
+            
+            <div class="glass-light rounded-3xl p-8 card-hover reveal" style="transition-delay: 200ms;">
+                <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg shadow-purple-500/30">
+                    <i data-lucide="message-square-text" class="w-7 h-7"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Семантический анализ</h3>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6">DistilBERT + CatBoost понимают не только что сказано, но и как. Выявляют противоречия в ответах.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-lg text-xs font-mono font-bold">F1: 88.5%</span>
+                    <span class="px-3 py-1 bg-white/5 text-slate-400 rounded-lg text-xs font-mono">Корпус CEDR</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="py-24 bg-[#0a0e17]">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16 reveal">
+            <span class="text-brand-400 font-bold text-sm uppercase tracking-wider mb-2 block">Процесс</span>
+            <h2 class="text-4xl md:text-6xl font-black mb-6 tracking-tight">4 шага к <span class="gradient-text">идеальному кандидату</span></h2>
+        </div>
+        
+        <div class="grid md:grid-cols-4 gap-6 relative">
+            <div class="hidden md:block absolute top-16 left-0 w-full h-0.5 bg-gradient-to-r from-brand-500/20 via-accent-500/20 to-brand-500/20 -z-0"></div>
+            
+            <div class="relative glass-light rounded-3xl p-6 card-hover reveal">
+                <div class="w-12 h-12 bg-brand-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4 relative z-10">1</div>
+                <h3 class="font-bold mb-2 text-center">Назначение</h3>
+                <p class="text-sm text-slate-400 text-center">HR создает ссылку на вакансию и отправляет её кандидату</p>
+            </div>
+            <div class="relative glass-light rounded-3xl p-6 card-hover reveal" style="transition-delay: 100ms;">
+                <div class="w-12 h-12 bg-brand-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4 relative z-10">2</div>
+                <h3 class="font-bold mb-2 text-center">Интервью с ИИ</h3>
+                <p class="text-sm text-slate-400 text-center">Кандидат отвечает на вопросы. Система фиксирует всё</p>
+            </div>
+            <div class="relative glass-light rounded-3xl p-6 card-hover reveal" style="transition-delay: 200ms;">
+                <div class="w-12 h-12 bg-brand-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4 relative z-10">3</div>
+                <h3 class="font-bold mb-2 text-center">Мультимодальный анализ</h3>
+                <p class="text-sm text-slate-400 text-center">3 нейросети обрабатывают данные параллельно</p>
+            </div>
+            <div class="relative glass-light rounded-3xl p-6 card-hover reveal" style="transition-delay: 300ms;">
+                <div class="w-12 h-12 bg-accent-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4 relative z-10">4</div>
+                <h3 class="font-bold mb-2 text-center">Готовый отчёт</h3>
+                <p class="text-sm text-slate-400 text-center">HR получает ранжированный список с детальным разбором</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="py-24 bg-slate-900/30">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16 reveal">
+            <span class="text-brand-400 font-bold text-sm uppercase tracking-wider mb-2 block">Для кого</span>
+            <h2 class="text-4xl md:text-6xl font-black mb-6 tracking-tight">Для кого создана <span class="gradient-text">платформа</span></h2>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="glass-light p-6 rounded-3xl card-hover reveal">
+                <i data-lucide="building-2" class="w-10 h-10 text-brand-400 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Корпорации</h3>
+                <p class="text-sm text-slate-400">Массовый подбор персонала без раздувания штата рекрутеров</p>
+            </div>
+            <div class="glass-light p-6 rounded-3xl card-hover reveal" style="transition-delay: 100ms;">
+                <i data-lucide="briefcase" class="w-10 h-10 text-accent-400 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Рекрутинговые агентства</h3>
+                <p class="text-sm text-slate-400">Увеличение пропускной способности кандидатов в 3 раза</p>
+            </div>
+            <div class="glass-light p-6 rounded-3xl card-hover reveal" style="transition-delay: 200ms;">
+                <i data-lucide="graduation-cap" class="w-10 h-10 text-purple-400 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Образование</h3>
+                <p class="text-sm text-slate-400">Оценка soft skills абитуриентов и выпускников вузов</p>
+            </div>
+            <div class="glass-light p-6 rounded-3xl card-hover reveal" style="transition-delay: 300ms;">
+                <i data-lucide="landmark" class="w-10 h-10 text-slate-400 mb-4"></i>
+                <h3 class="font-bold text-lg mb-2">Государственные структуры</h3>
+                <p class="text-sm text-slate-400">Прозрачный и объективный отбор на ответственные должности</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section id="pricing" class="py-24 bg-[#0a0e17]">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16 reveal">
+            <span class="text-brand-400 font-bold text-sm uppercase tracking-wider mb-2 block">Тарифные планы</span>
+            <h2 class="text-4xl md:text-6xl font-black mb-6 tracking-tight">Прозрачные цены. <span class="gradient-text">Реальная выгода.</span></h2>
+            <p class="text-xl text-slate-400">От <strong class="text-brand-400">16 рублей</strong> за одного проанализированного кандидата</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div class="glass-light rounded-3xl p-8 card-hover flex flex-col reveal">
+                <div class="text-sm text-slate-500 mb-2 font-medium">Базовый</div>
+                <div class="mb-6">
+                    <span class="text-4xl font-black text-white">2 500 ₽</span>
+                    <span class="text-slate-500">/мес</span>
+                </div>
+                <ul class="space-y-4 mb-8 flex-1 text-sm">
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span>До <strong>150</strong> кандидатов/мес</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span class="text-slate-500">(~16.6 ₽ за кандидата)</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span>Хранение: 100 профилей</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span>Базовая аналитика компетенций</span>
+                    </li>
+                </ul>
+                <a href="#contact" class="w-full py-3 rounded-xl border border-white/10 text-white font-semibold hover:bg-white/5 transition text-center block">Выбрать тариф</a>
+            </div>
+
+            <div class="pricing-popular bg-slate-900 rounded-3xl p-8 card-hover flex flex-col relative transform md:-translate-y-4 reveal" style="transition-delay: 100ms;">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-brand-500 to-accent-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wide shadow-lg">
+                    Выбор HR-директоров
+                </div>
+                <div class="text-sm text-slate-400 mb-2 font-medium">Полный</div>
+                <div class="mb-6">
+                    <span class="text-4xl font-black text-white">12 000 ₽</span>
+                    <span class="text-slate-400">/мес</span>
+                </div>
+                <ul class="space-y-4 mb-8 flex-1 text-sm text-slate-300">
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span>До <strong class="text-white">300</strong> кандидатов/мес</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span class="text-slate-500">(~40 ₽ за кандидата)</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span>Хранение: 1 000 профилей</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span><strong class="text-white">1 интеграция</strong> с HR-системой (1С, SAP)</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span>Стандартная техническая поддержка</span>
+                    </li>
+                </ul>
+                <a href="#contact" class="w-full py-3 rounded-xl bg-gradient-to-r from-brand-500 to-accent-500 text-white font-bold hover:from-brand-600 hover:to-accent-600 transition shadow-lg shadow-brand-500/30 text-center block">Начать бесплатно</a>
+            </div>
+
+            <div class="glass-light rounded-3xl p-8 card-hover flex flex-col reveal" style="transition-delay: 200ms;">
+                <div class="text-sm text-slate-500 mb-2 font-medium">Корпоративный</div>
+                <div class="mb-6">
+                    <span class="text-4xl font-black text-white">150 000 ₽</span>
+                    <span class="text-slate-500">/мес</span>
+                </div>
+                <ul class="space-y-4 mb-8 flex-1 text-sm">
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span>До <strong>3 000</strong> кандидатов/мес</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span class="text-slate-500">(~50 ₽ за кандидата)</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span><strong>Безлимитное</strong> хранение данных</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span>Мульти-интеграция + On-premise</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check" class="w-5 h-5 text-brand-400 flex-shrink-0 mt-0.5"></i>
+                        <span>Приоритетная поддержка 24/7 + SLA</span>
+                    </li>
+                </ul>
+                <a href="#contact" class="w-full py-3 rounded-xl border border-white/10 text-white font-semibold hover:bg-white/5 transition text-center block">Связаться с отделом продаж</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="faq" class="py-24 bg-slate-900/30">
+    <div class="max-w-4xl mx-auto px-6">
+        <div class="text-center mb-16 reveal">
+            <span class="text-brand-400 font-bold text-sm uppercase tracking-wider mb-2 block">FAQ</span>
+            <h2 class="text-4xl md:text-6xl font-black mb-6 tracking-tight">Частые <span class="gradient-text">вопросы</span></h2>
+        </div>
+        
+        <div class="space-y-4">
+            <details class="glass-light rounded-2xl p-6 group cursor-pointer reveal">
+                <summary class="font-bold flex items-center justify-between list-none">
+                    Как обеспечивается безопасность персональных данных?
+                    <i data-lucide="chevron-down" class="chevron w-5 h-5 text-brand-400"></i>
+                </summary>
+                <p class="text-slate-400 mt-4 leading-relaxed">Все данные хранятся на серверах в РФ (Yandex Cloud), шифруются по TLS 1.3. Полное соответствие 152-ФЗ. Биометрические данные обрабатываются локально и не передаются третьим лицам.</p>
+            </details>
+            
+            <details class="glass-light rounded-2xl p-6 group cursor-pointer reveal">
+                <summary class="font-bold flex items-center justify-between list-none">
+                    Можно ли интегрировать с нашей HR-системой?
+                    <i data-lucide="chevron-down" class="chevron w-5 h-5 text-brand-400"></i>
+                </summary>
+                <p class="text-slate-400 mt-4 leading-relaxed">Да. У нас есть готовые REST API коннекторы для 1С:ЗУП, SAP SuccessFactors, WebSoft HCM и hh.ru. Интеграция занимает от 1 дня.</p>
+            </details>
+            
+            <details class="glass-light rounded-2xl p-6 group cursor-pointer reveal">
+                <summary class="font-bold flex items-center justify-between list-none">
+                    Какая точность анализа?
+                    <i data-lucide="chevron-down" class="chevron w-5 h-5 text-brand-400"></i>
+                </summary>
+                <p class="text-slate-400 mt-4 leading-relaxed">F1-Score по трём модальностям: речь — 86%, мимика — 82%, текст — 88%. Интегральная точность при объединении модальностей достигает 91%.</p>
+            </details>
+            
+            <details class="glass-light rounded-2xl p-6 group cursor-pointer reveal">
+                <summary class="font-bold flex items-center justify-between list-none">
+                    Когда официальный запуск?
+                    <i data-lucide="chevron-down" class="chevron w-5 h-5 text-brand-400"></i>
+                </summary>
+                <p class="text-slate-400 mt-4 leading-relaxed">Продукт готовится к выходу. Сейчас мы завершаем финальное тестирование на выборке из 89 кандидатов с 42 различными профессиями. Оставьте заявку, чтобы получить ранний доступ.</p>
+            </details>
+
+            <details class="glass-light rounded-2xl p-6 group cursor-pointer reveal">
+                <summary class="font-bold flex items-center justify-between list-none">
+                    Работает ли система с русским языком?
+                    <i data-lucide="chevron-down" class="chevron w-5 h-5 text-brand-400"></i>
+                </summary>
+                <p class="text-slate-400 mt-4 leading-relaxed">Да, платформа полностью адаптирована под русский язык и культурный контекст. Модель анализа текста обучена на русскоязычном корпусе CEDR.</p>
+            </details>
+        </div>
+    </div>
+</section>
+
+<section id="contact" class="py-24 bg-[#0a0e17] relative overflow-hidden">
+    <div class="blob bg-brand-500 w-[500px] h-[500px] -top-20 -right-20 opacity-20"></div>
+    <div class="blob bg-accent-500 w-[400px] h-[400px] bottom-0 left-0 opacity-20"></div>
+    
+    <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+        <div class="inline-block px-3 py-1 bg-white/5 text-brand-400 text-xs font-bold rounded-full mb-6 border border-white/10 reveal">РАННИЙ ДОСТУП</div>
+        <h2 class="text-4xl md:text-7xl font-black mb-6 tracking-tight reveal">Готовимся к <span class="gradient-text">официальному запуску</span></h2>
+        <p class="text-xl text-slate-400 mb-10 max-w-2xl mx-auto reveal">
+            Оставьте заявку и мы свяжемся с вами, как только платформа будет готова к работе. 
+            <span class="text-white font-semibold">Первые клиенты получат специальные условия.</span>
+        </p>
+        
+        <form action="https://formsubmit.co/liza-ilchenko.12@mail.ru" method="POST" class="max-w-lg mx-auto space-y-4 text-left reveal" id="contact-form">
+            <input type="hidden" name="_subject" value="Новая заявка с сайта Smart_HR">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_template" value="table">
+            <input type="text" name="_honey" style="display:none">
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-400 mb-2">Рабочий Email *</label>
+                <input type="email" name="email" required class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" placeholder="hr@company.ru">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Имя</label>
+                    <input type="text" name="name" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" placeholder="Иван Иванов">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400 mb-2">Компания</label>
+                    <input type="text" name="company" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition" placeholder="ООО «Компания»">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-400 mb-2">Интересующий тариф</label>
+                <select name="tariff" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition [&>option]:text-slate-900">
+                    <option>Базовый (2 500 ₽/мес)</option>
+                    <option>Полный (12 000 ₽/мес)</option>
+                    <option>Корпоративный (150 000 ₽/мес)</option>
+                    <option>Не определился</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-400 mb-2">Сообщение</label>
+                <textarea name="message" rows="3" class="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition resize-none" placeholder="Расскажите о ваших задачах..."></textarea>
+            </div>
+            <button type="submit" class="w-full btn-primary text-white px-8 py-4 rounded-xl font-bold shadow-lg mt-4 flex items-center justify-center gap-2 group">
+                Отправить заявку
+                <i data-lucide="send" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+            <p class="text-slate-600 text-xs text-center mt-4">Нажимая кнопку, вы соглашаетесь с политикой обработки персональных данных (152-ФЗ).</p>
+        </form>
+
+        <div id="contact-success" class="hidden max-w-lg mx-auto mt-8 p-6 bg-green-500/10 border border-green-500/30 rounded-2xl backdrop-blur">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="check" class="w-6 h-6 text-white"></i>
+                </div>
+                <div class="text-left">
+                    <div class="font-bold text-white text-lg">Заявка отправлена!</div>
+                    <div class="text-green-400 text-sm">Мы свяжемся с вами в ближайшее время</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<footer class="bg-[#0a0e17] border-t border-white/5 py-16">
+    <div class="max-w-7xl mx-auto px-6">
+     
+        <div class="grid md:grid-cols-12 gap-12 mb-12">
+            
+          
+            <div class="md:col-span-5">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand-500/30">
+                        <i data-lucide="brain-circuit" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-white">Smart_HR</span>
+                </div>
+                <p class="text-slate-300 text-lg leading-relaxed mb-6 font-medium">
+                    Мультимодальный ИИ-спутник для объективного найма.
+                </p>
+                <p class="text-slate-500 text-sm leading-relaxed mb-6">
+                    Анализируем речь, мимику и текст в реальном времени, чтобы вы находили лучших кандидатов без субъективных ошибок.
+                </p>
+                <div class="text-slate-600 text-sm space-y-1 font-mono">
+                    <p>ООО «НЕЙРОСОФТ»</p>
+                    <p>ИНН 2700061394 · ОГРН 1252700016007</p>
+                </div>
+            </div>
+
+    
+            <div class="md:col-span-3">
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Платформа</h4>
+                <ul class="space-y-3 text-sm text-slate-400">
+                    <li><a href="#demo" class="hover:text-brand-400 transition">Демонстрация</a></li>
+                    <li><a href="#technology" class="hover:text-brand-400 transition">Технологии</a></li>
+                    <li><a href="#pricing" class="hover:text-brand-400 transition">Тарифы</a></li>
+                    <li><a href="#faq" class="hover:text-brand-400 transition">Вопросы и ответы</a></li>
+                    <li><a href="#" class="hover:text-brand-400 transition">Политика конфиденциальности</a></li>
+                </ul>
+            </div>
+
+            <div class="md:col-span-4">
+                <h4 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">При поддержке</h4>
+                <div class="space-y-4">
+                 
+                    <a href="https://fasie.ru" target="_blank" class="block bg-white rounded-xl p-4 border border-white/20 hover:border-brand-500/50 transition group shadow-lg">
+                        <img src="path/to/fasie-logo.png" alt="Фонд содействия инновациям" class="w-full h-auto mb-2" />
+                        <div class="text-xs text-slate-600 text-center font-semibold">
+                            Фонд содействия инновациям
+                        </div>
+                    </a>
+                    
+                  
+                    <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <div class="text-brand-400 text-3xl font-light mb-2 text-center">[ ]</div>
+                        <div class="text-[9px] font-bold text-white text-center leading-tight uppercase tracking-wide">
+                            Платформа университетского<br>технологического<br>предпринимательства
+                        </div>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-400 leading-relaxed mt-4">
+                    Проект реализован при поддержке <a href="https://fasie.ru" target="_blank" class="text-brand-400 font-semibold hover:underline">Фонда содействия инновациям</a> в рамках программы «Студенческий стартап» мероприятия «Платформа университетского технологического предпринимательства».
+                </div>
+            </div>
+        </div>
+
+      
+        <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-600">
+            <div>© 2026 ООО «НЕЙРОСОФТ» (Smart_HR). Все права защищены.</div>
+            <div class="flex items-center gap-2">
+                <span>Сделано с ❤️ в России</span>
+            </div>
+        </div>
+    </div>
+</footer>
+<script>
+    lucide.createIcons();
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    window.addEventListener('scroll', () => {
+        const nav = document.getElementById('navbar');
+        if (window.scrollY > 50) {
+            nav.classList.add('shadow-lg');
+            nav.style.background = 'rgba(10, 14, 23, 0.95)';
+        } else {
+            nav.classList.remove('shadow-lg');
+            nav.style.background = 'rgba(10, 14, 23, 0.8)';
+        }
+    });
+
+    
+    const stepLabels = [
+        'Шаг 1 из 6 · Вход в систему',
+        'Шаг 2 из 6 · Дашборд HR-специалиста',
+        'Шаг 3 из 6 · База кандидатов (89)',
+        'Шаг 4 из 6 · Назначение собеседования',
+        'Шаг 5 из 6 · Интервью с ИИ-аватаром',
+        'Шаг 6 из 6 · Аналитический отчёт'
+    ];
+
+    function showScreen(index) {
+ 
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const target = document.querySelector(`.screen[data-screen="${index}"]`);
+        if (target) target.classList.add('active');
+        
+   
+        document.querySelectorAll('.demo-nav-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', i === index);
+        });
+        
+ 
+        document.querySelectorAll('.demo-step-dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+        
+      
+        document.querySelectorAll('.sidebar-icon').forEach((icon, i) => {
+            icon.classList.toggle('active', i === index);
+        });
+        
+
+        document.getElementById('step-label').textContent = stepLabels[index];
+    }
+
+
+    let currentScreen = 0;
+    let autoPlayInterval = setInterval(() => {
+        currentScreen = (currentScreen + 1) % 6;
+        showScreen(currentScreen);
+    }, 5000);
+
+    document.querySelectorAll('.demo-nav-btn').forEach((btn, index) => {
+        btn.addEventListener('click', () => {
+            clearInterval(autoPlayInterval);
+            currentScreen = index;
+            showScreen(currentScreen);
+
+            setTimeout(() => {
+                autoPlayInterval = setInterval(() => {
+                    currentScreen = (currentScreen + 1) % 6;
+                    showScreen(currentScreen);
+                }, 5000);
+            }, 10000);
+        });
+    });
+
+    if (window.location.hash === '#contact-success') {
+        document.getElementById('contact-form').style.display = 'none';
+        document.getElementById('contact-success').classList.remove('hidden');
+    }
+</script>
+
+</body>
+</html>
